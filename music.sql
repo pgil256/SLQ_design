@@ -7,6 +7,13 @@ CREATE DATABASE music;
 
 \c music
 
+CREATE TABLE albums
+(
+  id SERIAL PRIMARY KEY,
+  album TEXT NOT NULL,
+  producers TEXT[] NOT NULL
+);
+
 CREATE TABLE songs
 (
   id SERIAL PRIMARY KEY,
@@ -14,12 +21,20 @@ CREATE TABLE songs
   duration_in_seconds INTEGER NOT NULL,
   release_date DATE NOT NULL,
   artists TEXT[] NOT NULL,
-  album TEXT NOT NULL,
-  producers TEXT[] NOT NULL
+  album_id INTEGER REFERENCES album ON DELETE CASCADE
 );
 
-INSERT INTO songs
+INSERT INTO songs_info
   (title, duration_in_seconds, release_date, artists, album, producers)
+
+INSERT INTO album (album, producers)
+    SELECT album, producers
+    FROM songs_info
+
+INSERT INTO songs (title, duration_in_seconds, release_date, artists)
+    SELECT title, duration_in_seconds, release_date, artists
+    FROM songs_info
+
 VALUES
   ('MMMBop', 238, '04-15-1997', '{"Hanson"}', 'Middle of Nowhere', '{"Dust Brothers", "Stephen Lironi"}'),
   ('Bohemian Rhapsody', 355, '10-31-1975', '{"Queen"}', 'A Night at the Opera', '{"Roy Thomas Baker"}'),

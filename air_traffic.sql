@@ -7,24 +7,55 @@ CREATE DATABASE air_traffic;
 
 \c air_traffic
 
-CREATE TABLE tickets
+CREATE TABLE flights
+(
+  id SERIAL PRIMARY KEY,
+  flight_id TEXT NOT NULL,
+  airline TEXT NOT NULL
+);
+
+CREATE TABLE passengers
 (
   id SERIAL PRIMARY KEY,
   first_name TEXT NOT NULL,
   last_name TEXT NOT NULL,
   seat TEXT NOT NULL,
-  flight_id TEXT NOT NULL,
-  departure TIMESTAMP NOT NULL,
-  arrival TIMESTAMP NOT NULL,
-  airline TEXT NOT NULL,
-  from_city TEXT NOT NULL,
-  from_country TEXT NOT NULL,
-  to_city TEXT NOT NULL,
-  to_country TEXT NOT NULL
+  flight_id INTEGER REFERENCES flight ON DELETE CASCADE
 );
 
-INSERT INTO tickets
+
+CREATE TABLE departures
+(
+  id SERIAL PRIMARY KEY,
+  departure TIMESTAMP NOT NULL,
+  from_city TEXT NOT NULL,
+  from_country TEXT NOT NULL,
+  flight_id INTEGER REFERENCES flight ON DELETE CASCADE
+);
+
+CREATE TABLE arrivals
+(
+  id SERIAL PRIMARY KEY,
+  arrival TIMESTAMP NOT NULL,
+  to_city TEXT NOT NULL,
+  to_country TEXT NOT NULL
+  flight_id INTEGER REFERENCES flight ON DELETE CASCADE
+);
+
+INSERT INTO tickets_info
   (first_name, last_name, seat, departure, arrival, airline, from_city, from_country, to_city, to_country)
+
+INSERT INTO flights (flight_id, airline)
+    SELECT flight_id, airline
+    FROM tickets_info
+
+INSERT INTO departures (departures, from_city, from_country)
+    SELECT departures, from_city, from_country
+    FROM tickets_info
+
+INSERT INTO arrivals (arrival, to_city, to_country)
+    SELECT arrival, to_city, to_country
+    FROM tickets_info
   
 VALUES
   ('Jennifer', 'Finch', '33B', '2018-04-08 09:00:00', '2018-04-08 12:00:00', 'United', 'Washington DC', 'United States', 'Seattle', 'United States'),
